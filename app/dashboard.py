@@ -24,16 +24,23 @@ st.set_page_config(
 # ── Load data ────────────────────────────────────────────────────────────────
 @st.cache_data
 def load_data():
+    import os
+
+    # If DB doesn't exist → run pipeline
+    if not os.path.exists(DB_PATH):
+        from run_pipeline import run
+        run()
+
     conn = sqlite3.connect(DB_PATH)
-    scored   = pd.read_sql("SELECT * FROM clm_scored",   conn)
-    issues   = pd.read_sql("SELECT * FROM issue_log",    conn)
-    glossary = pd.read_sql("SELECT * FROM data_glossary",conn)
+
+    scored   = pd.read_sql("SELECT * FROM clm_scored", conn)
+    issues   = pd.read_sql("SELECT * FROM issue_log", conn)
+    glossary = pd.read_sql("SELECT * FROM data_glossary", conn)
     lineage  = pd.read_sql("SELECT * FROM data_lineage", conn)
     profile  = pd.read_sql("SELECT * FROM profile_report", conn)
+
     conn.close()
     return scored, issues, glossary, lineage, profile
-
-scored, issues, glossary, lineage, profile = load_data()
 
 # ── Sidebar ───────────────────────────────────────────────────────────────────
 st.sidebar.image("https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Standard_Chartered.svg/320px-Standard_Chartered.svg.png", width=180)
